@@ -148,7 +148,7 @@ function VirtualizedDropdown<T extends BaseOption>({
                 if (!val) setSearch('')
             }}
         >
-            <PopoverTrigger asChild={false}>
+            <PopoverTrigger asChild>
                 <Button
                     variant='outline'
                     role='combobox'

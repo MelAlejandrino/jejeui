@@ -5,7 +5,54 @@ description: A performant dropdown with TanStack Virtual. Handles tens of thousa
 
 ## Overview
 
-import {VirtualizedDropdownSingleSelectDemo} from "@/features/virtualized-dropdown/page.tsx";
+import {VirtualizedDropdownSingleSelectDemo, VirtualizedDropdownMultiSelectDemo} from "@/features/virtualized-dropdown/page.tsx";
 
 ## Single Select
 <VirtualizedDropdownSingleSelectDemo />
+```tsx
+export const VirtualizedDropdownSingleSelectDemo = () => {
+    const [value, setValue] = useState<number | null>(null)
+    return (
+        <VirtualizedDropdown<MockDataInterface>
+            single
+            data={mockData}
+            value={value as MockDataInterface | null}
+            onChange={(val) => {
+                if (!val) {
+                    return;
+                }
+                if (Array.isArray(val)) {
+                    return;
+                }
+                setValue(val.id);
+            }}
+        />
+  );
+};
+```
+
+## Multi Select
+<VirtualizedDropdownMultiSelectDemo />
+```tsx
+export const VirtualizedDropdownMultiSelectDemo = () => {
+    const [values, setValues] = useState<MockDataInterface[]>([])
+
+    return (
+        <VirtualizedDropdown
+            keepOpenOnSelect
+            data={mockData}
+            value={values}
+            onChange={val => {
+                if (!val) {
+                    return
+                }
+                if (!Array.isArray(val)) {
+                    return
+                }
+                setValues(val)
+            }}
+        />
+    )
+}
+```
+
