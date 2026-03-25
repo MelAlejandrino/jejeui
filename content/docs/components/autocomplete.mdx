@@ -1,0 +1,76 @@
+---
+title: Autocomplete
+description: Combobox-style autocomplete with free-form input, client-side filtering, keyboard navigation, loading states, and outside-click dismissal.
+---
+
+import {AutocompleteDemo} from "@/features/autocomplete/page.tsx";
+
+## Installation
+
+```tsx
+npx jejeui add autocomplete
+```
+
+## Quick Start
+
+```tsx
+const options: Option[] = [
+  { value: 'ph', label: 'Philippines' },
+  { value: 'us', label: 'United States' }
+];
+
+<AutoComplete
+  options={options}
+  placeholder="Search countries..."
+  onValueChange={setValue}
+/>
+```
+
+## Props
+
+| Prop | Type | Description | Default |
+|------|------|-------------|---------|
+| `options` | `Option[]` | `{ value, label }[]` array | `[]` |
+| `value` | `Option \| null` | Selected option | `null` |
+| `onValueChange` | `(Option \| null) => void` | Selection callback | - |
+| `placeholder` | `string` | Input placeholder | - |
+| `isLoading` | `boolean` | Show loading skeleton | `false` |
+| `openOnFocus` | `boolean` | Open dropdown on focus | `false` |
+| `disabled` | `boolean` | Disable input | `false` |
+| `emptyMessage` | `string` | No results text | `'No results found.'` |
+| `onClear` | `() => void` | Clear callback | - |
+
+## Basic Usage
+
+<AutocompleteDemo />
+
+```tsx
+const [value, setValue] = useState<Option | null>(null);
+
+<AutoComplete
+  options={countries}
+  value={value}
+  onValueChange={setValue}
+  placeholder="Search or type anything..."
+/>
+```
+
+## Features
+
+- **Free-form input**: Enter custom values (Enter to confirm)
+- **Client filtering**: Type to filter options
+- **Keyboard nav**: Arrow keys, Enter, Escape
+- **Loading state**: Skeleton while fetching
+- **Outside click**: Auto-dismiss
+- **Checkmark**: Visual selection state
+- **CmdK powered**: Battle-tested primitives
+
+## Free Input Behavior
+
+- **Type + Enter** → Uses typed text as custom option
+- **Exact match** → Selects from options
+- **Partial match** → Filters dropdown
+- **Escape** → Reverts to previous value
+- **Clear** → `onClear()` callback
+
+**TypeScript Option**: `{ value: string, label: string, [key: string]: string }`

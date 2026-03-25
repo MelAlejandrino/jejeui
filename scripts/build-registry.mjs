@@ -3,6 +3,35 @@ import path from 'path';
 
 const items = [
   {
+    name: 'autocomplete',
+    type: 'registry:component',
+    title: 'Autocomplete',
+    description: 'Combobox-style autocomplete input with filtering and free-form support.',
+    dependencies: ['lucide-react', 'cmdk'],
+    registryDependencies: ['command', 'skeleton'],
+    files: [
+      {
+        path: 'components/ui/autocomplete.tsx',
+        type: 'registry:component',
+        source: 'src/components/autocomplete.tsx',
+      },
+    ],
+  },
+  {
+    name: 'image-uploader',
+    type: 'registry:component',
+    title: 'Image Uploader',
+    description: 'Drag-and-drop image uploader with preview and validation.',
+    dependencies: ['lucide-react'],
+    files: [
+      {
+        path: 'components/ui/image-uploader.tsx',
+        type: 'registry:component',
+        source: 'src/components/image-uploader.tsx',
+      },
+    ],
+  },
+  {
     name: 'virtualized-dropdown',
     type: 'registry:component',
     title: 'Virtualized Dropdown',

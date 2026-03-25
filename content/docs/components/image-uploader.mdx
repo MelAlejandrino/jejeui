@@ -1,0 +1,75 @@
+---
+title: Image Uploader
+description: Drag-and-drop image uploader with preview, validation, and React Hook Form support. Handles multiple files, size/type limits, and URL images.
+---
+
+import {ImageUploaderSingle, ImageUploaderMultiple} from "@/features/image-uploader/page.tsx";
+
+## Installation
+
+```tsx
+npx jejeui add image-uploader
+```
+
+## Quick Start
+
+```tsx
+<ImageUploader
+  multiple
+  maxFiles={5}
+  maxFileSize={5}
+  onChange={setImages}
+/>
+```
+
+## Props
+
+| Prop | Type | Description | Default |
+|------|------|-------------|---------|
+| `multiple` | `boolean` | Allow multiple files | `true` |
+| `value` | `File \| string \| Array \| null` | Current files/URLs | `[]` |
+| `onChange` | `(value) => void` | Value change handler | - |
+| `maxFiles` | `number` | Max files allowed | `10` |
+| `maxFileSize` | `number` (MB) | Max file size | `10` |
+| `onError` | `(msg: string) => void` | Validation errors | - |
+| `onSuccess` | `() => void` | Upload success | - |
+
+## Single Image
+
+<ImageUploaderSingle />
+
+```tsx
+const [image, setImage] = useState<File | string | null>(null);
+
+<ImageUploader
+  multiple={false}
+  value={image}
+  onChange={setImage}
+  maxFileSize={5}
+/>
+```
+
+## Multiple Images
+
+<ImageUploaderMultiple />
+
+```tsx
+const [images, setImages] = useState<(File | string)[]>([]);
+
+<ImageUploader
+  multiple
+  maxFiles={8}
+  value={images}
+  onChange={setImages}
+/>
+```
+
+## Features
+
+- **Drag & Drop** with visual feedback
+- **Validation**: JPEG/PNG/WEBP, size limits
+- **Preview**: Object URLs + external image URLs
+- **Remove**: Individual file delete
+- **React Hook Form**: Works with `useFieldArray`
+- **TypeScript**: Full type safety
+
