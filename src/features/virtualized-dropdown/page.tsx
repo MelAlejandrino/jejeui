@@ -1,0 +1,32 @@
+"use client";
+
+import VirtualizedDropdown from "@/components/virtualized-dropdown";
+import {useState} from "react";
+
+interface MockDataInterface {
+    id: number
+    name: string
+}
+
+const mockData: MockDataInterface[] = [{
+    id: 1,
+    name: 'test'
+}]
+
+export const VirtualizedDropdownSingleSelectDemo = () => {
+    const [value, setValue] = useState<number | null>(null)
+    return (
+        <VirtualizedDropdown<MockDataInterface> single data={mockData}
+                                                value={value as MockDataInterface | null}
+                                                onChange={val => {
+                                                    if (!val) {
+                                                        return
+                                                    }
+                                                    if (Array.isArray(val)) {
+                                                        return
+                                                    }
+                                                    setValue(val.id)
+                                                }
+                                                }/>
+    )
+}
