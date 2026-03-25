@@ -1,61 +1,115 @@
 ---
 title: Virtualized Dropdown
-description: A performant dropdown with TanStack Virtual. Handles tens of thousands of options without performance degradation. Supports single and multi-select.
+description: High-performance dropdown powered by TanStack Virtual. Renders tens of thousands of options smoothly. Supports single/multi-select, search, virtualization, and "Select All".
 ---
 
+import {VirtualizedDropdownSingleSelectDemo, VirtualizedDropdownMultiSelectDemo, VirtualizedDropdownDisabledDemo} from "@/features/virtualized-dropdown/page.tsx";
+
 ## Installation
+
 ```tsx
 npx jejeui add virtualized-dropdown
 ```
 
-import {VirtualizedDropdownSingleSelectDemo, VirtualizedDropdownMultiSelectDemo} from "@/features/virtualized-dropdown/page.tsx";
+## Quick Start
+
+```tsx
+<VirtualizedDropdown
+  data={yourOptions}
+  value={selected}
+  onChange={setSelected}
+/>
+```
+
+## Core Props
+
+| Prop | Type | Description | Default |
+|------|------|-------------|---------|
+| `data` | `T[]` | Array of options `{ id, name? }` | - |
+| `value` | `T \| T[] \| null` | Selected value(s) | - |
+| `onChange` | `(val: T \| T[] \| null) => void` | Selection callback | - |
+| `single` | `boolean` | Single select mode | `false` |
+| `disabled` | `boolean` | Disable interaction | `false` |
+| `keepOpenOnSelect` | `boolean` | Keep dropdown open in multi-mode | `false` |
+| `nameSet` | `string \| (item: T) => string` | Display label resolver | `'name'` |
+| `idSet` | `string \| (item: T) => string` | Unique ID resolver | `'id'` |
+
+## NameSet & IdSet Usage
+
+```tsx
+// String key
+nameSet="fullName"
+idSet="userId"
+
+// Function
+nameSet={(item) => `${item.firstName} ${item.lastName}`}
+idSet={(item) => item.id}
+
+// Combined fields
+nameSet="firstName+lastName"
+```
 
 ## Single Select
+
 <VirtualizedDropdownSingleSelectDemo />
+
 ```tsx
-export const VirtualizedDropdownSingleSelectDemo = () => {
-    const [value, setValue] = useState<number | null>(null)
-    return (
-        <VirtualizedDropdown<MockDataInterface>
-            single
-            data={mockData}
-            value={value as MockDataInterface | null}
-            onChange={(val) => {
-                if (!val) {
-                    return;
-                }
-                if (Array.isArray(val)) {
-                    return;
-                }
-                setValue(val.id);
-            }}
-        />
-  );
-};
+const [value, setValue] = useState<number | null>(null);
+
+<VirtualizedDropdown<MockDataInterface>
+  single
+  data={mockData}
+  value={value ? mockData.find(d => d.id === value) ?? null : null}
+  onChange={(val) => {
+    if (!val) setValue(null);
+    else setValue((val as MockDataInterface).id);
+  }}
+/>
 ```
 
 ## Multi Select
-<VirtualizedDropdownMultiSelectDemo />
-```tsx
-export const VirtualizedDropdownMultiSelectDemo = () => {
-    const [values, setValues] = useState<MockDataInterface[]>([])
 
-    return (
-        <VirtualizedDropdown
-            keepOpenOnSelect
-            data={mockData}
-            value={values}
-            onChange={val => {
-                if (!val) {
-                    return
-                }
-                if (!Array.isArray(val)) {
-                    return
-                }
-                setValues(val)
-            }}
-        />
-    )
-}
+<VirtualizedDropdownMultiSelectDemo />
+
+```tsx
+const [values, setValues] = useState<MockDataInterface[]>([]);
+
+<VirtualizedDropdown
+  keepOpenOnSelect
+  data={mockData}
+  value={values}
+  onChange={setValues}
+/>
 ```
 
+**Features:**
+- "Select All" for filtered results
+- Individual toggle with checkboxes
+- Search filters client-side
+
+## Disabled State
+
+Supports preselected values while disabled.
+
+<VirtualizedDropdownDisabledDemo />
+
+```tsx
+const [value, setValue] = useState<number>(1);
+
+<VirtualizedDropdown<MockDataInterface>
+  single
+  disabled
+  data={mockData}
+  value={mockData.find(d => d.id === value)!}
+  onChange={(val) => val && setValue((val as MockDataInterface).id)}
+/>
+```
+
+## Features
+
+- **Virtualization**: TanStack Virtual renders only visible rows [web:3]
+- **Search**: Built-in filtering with `CommandInput`
+- **Multi-select**: Checkboxes + "Select All" (filtered)
+- **Flexible keys**: String, function, or combined fields
+- **Shadcn/ui**: Matches your design system
+- **Accessibility**: ARIA roles and keyboard nav
