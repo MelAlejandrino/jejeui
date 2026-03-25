@@ -1,0 +1,402 @@
+---
+title: DataGrid
+description: A powerful, inline-editable table component with built-in sorting, pagination, validation, and CRUD operations. One hook handles everything from client-side state to server-side integration.
+---
+
+import { DataGridDemo } from "@/features/data-grid/page.tsx";
+
+## Overview
+
+The DataGrid component provides a complete data table solution with inline editing capabilities. It combines a headless `useTable` hook for state management with a polished UI component for rendering. Whether you need simple client-side tables or complex server-side integrations with API validation, DataGrid handles it all through a unified interface.
+
+## Installation
+
+```bash
+npx jejeui add data-grid
+```
+
+## Quick Start
+
+Get a fully functional editable table in three steps:
+
+### Step 1: Define Your Fields
+
+Configure columns with type-safe field definitions:
+
+```tsx
+const fields = {
+  name: { label: 'Name', type: 'text' },
+  age: { label: 'Age', type: 'number' },
+  status: {
+    label: 'Status',
+    type: 'select',
+    options: [
+      { value: 'active', label: 'Active' },
+      { value: 'inactive', label: 'Inactive' }
+    ]
+  }
+};
+```
+
+### Step 2: Setup the Hook
+
+Initialize state and connect handlers:
+
+```tsx
+const [data, setData] = useState(INITIAL_DATA);
+
+const { tableProps, setError } = useTable({
+  data,
+  fields,
+  validation: {
+    name: value => !value ? 'Name required' : null
+  },
+  onSave: async (id, changes) => { /* API call */ },
+  onCreate: async (newRow) => { /* API call */ },
+  onDelete: async (id) => { /* API call */ }
+});
+```
+
+### Step 3: Render
+
+```tsx
+<DataGrid tableProps={tableProps} />
+```
+
+## Live Demo
+
+<DataGridDemo />
+
+## Core Concepts
+
+### Field Types
+
+DataGrid supports multiple field types out of the box:
+
+| Type | Description | Configuration |
+|------|-------------|---------------|
+| `text` | Single-line text input | `placeholder`, `size` |
+| `number` | Numeric input with formatting | `thousandSeparator`, `decimalScale` |
+| `textarea` | Multi-line text | `rows`, `size` |
+| `select` | Dropdown selection | `options` |
+| `virtualized-dropdown` | Searchable dropdown for large datasets | `data`, `nameSet`, `idSet`, `single` |
+| `date` | Date picker | `sortable` |
+| `checkbox` | Boolean toggle | — |
+| `readonly` | Display-only field | — |
+
+### Data Flow Architecture
+
+```
+┌─────────────┐     ┌─────────────┐     ┌─────────────┐
+│   UI Layer  │────▶│  useTable   │────▶│   Server    │
+│  DataGrid   │◄────│    Hook     │◄────│    API      │
+└─────────────┘     └─────────────┘     └─────────────┘
+       │                   │                   │
+       └───────────────────┴───────────────────┘
+              Validation & Error Handling
+```
+
+## API Reference
+
+### useTable Options
+
+| Prop | Type | Description | Required |
+|------|------|-------------|----------|
+| `data` | `TData[]` | Table rows | ✅ |
+| `fields` | `Record<keyof TData, FieldConfig>` | Column definitions | ✅ |
+| `validation` | `Record<keyof TData, ValidationFn>` | Client-side validation rules | — |
+| `onSave` | `(id, Partial<TData>) => Promise<void>` | Edit handler | — |
+| `onCreate` | `(Partial<TData>) => Promise<void>` | Create handler | — |
+| `onDelete` | `(id) => Promise<void>` | Delete handler | — |
+| `onView` | `(id) => void` | View handler | — |
+| `extraActions` | `ExtraActionConfig[]` | Custom row action buttons | — |
+| `pagination` | `PaginationConfig` | Server or client-side pagination | — |
+| `sort` | `{ onSortChange?: (key, dir) => void }` | Server-side sorting callback | — |
+
+### useTable Returns
+
+| Property | Type | Description |
+|----------|------|-------------|
+| `tableProps` | `TableProps<TData>` | Props to pass to `<DataGrid />` |
+| `setError` | `(field, message) => void` | Set server validation errors |
+| `setCreateErrors` | `(errors) => void` | Bulk set create form errors |
+| `setEditErrors` | `(errors) => void` | Bulk set edit form errors |
+
+## Advanced Features
+
+### Nested Data with getInitialValue
+
+When your row data structure doesn't match your field keys, use `getInitialValue` to bridge the gap:
+
+**Problem**: Row stores `department: { id: 1, name: 'Engineering' }` but field key is `department_id`
+
+```tsx
+fields: {
+  department_id: {
+    type: 'virtualized-dropdown',
+    data: departments,
+    nameSet: 'name',
+    idSet: 'id',
+    getInitialValue: (row) => row.department  // Return full object
+  }
+}
+```
+
+**Works for any field type**:
+
+```tsx
+// Text from nested object
+city: {
+  type: 'text',
+  getInitialValue: (row) => row.address?.city
+},
+
+// Number from computed value
+totalOrders: {
+  type: 'number',
+  getInitialValue: (row) => row.orders.length
+},
+
+// Select from related data
+status_label: {
+  type: 'select',
+  options: statusOptions,
+  getInitialValue: (row) => row.status_obj
+}
+```
+
+### Custom Row Actions
+
+Add buttons to each row's action menu:
+
+```tsx
+extraActions: [
+  {
+    key: 'duplicate',
+    label: 'Duplicate',
+    icon: CopyIcon,
+    onClick: async (id, row) => { /* duplicate logic */ }
+  },
+  {
+    key: 'archive',
+    label: 'Archive',
+    icon: ArchiveIcon,
+    destructive: true,  // Renders in red
+    onClick: async (id) => { /* archive logic */ }
+  }
+]
+```
+
+### Custom Cell Rendering
+
+Control how values display in read mode:
+
+```tsx
+// fields configuration
+salary: {
+  label: 'Salary',
+  type: 'number',
+  render: (value) => <p>₱{Number(value).toLocaleString()}</p>
+},
+
+notes: {
+  label: 'Notes',
+  type: 'textarea',
+  render: (value) => (
+    <span className="break-words whitespace-normal">
+      {String(value ?? '')}
+    </span>
+  )
+}
+```
+
+## Validation Strategies
+
+### Client-Side Validation
+
+Block submission before API calls:
+
+```tsx
+validation: {
+  name: (value) => !value ? 'Name is required' : null,
+  email: (value) => 
+    !value?.includes('@') ? 'Valid email required' : null,
+  age: (value, formData) => 
+    value < 18 ? 'Must be 18+' : null
+}
+```
+
+### Server-Side Validation
+
+Display API errors per field:
+
+```tsx
+onSave: async (id, data) => {
+  try {
+    await api.update(id, data);
+  } catch (error) {
+    // Display error on specific field
+    setError('name', 'Server: Name already exists');
+    throw error;  // Keeps edit row open
+  }
+}
+```
+
+### Handling Server Errors in Create
+
+```tsx
+onCreate: async (newData) => {
+  await new Promise((r) => setTimeout(r, 800));
+  
+  if ((newData.name?.length ?? 0) > 20) {
+    setError('name', 'Max 20 characters');
+    throw new Error('Validation failed');
+  }
+  
+  // Proceed with creation...
+};
+```
+
+## Pagination Modes
+
+### Client-Side Pagination
+
+Handles slicing automatically:
+
+```tsx
+useTable({
+  data,
+  pagination: {
+    pageSize: 10  // Only required option
+  }
+});
+```
+
+### Server-Side Pagination
+
+Integrate with your API:
+
+```tsx
+const [pagination, setPagination] = useState({ 
+  page: 0, 
+  pageSize: 10 
+});
+
+const { tableProps } = useTable({
+  data: serverData.data,        // Current page from API
+  pagination: {
+    page: pagination.page,
+    pageSize: pagination.pageSize,
+    total: serverData.total,    // Total record count
+    onPageChange: (page, size) => 
+      setPagination({ page, pageSize: size })
+  }
+});
+```
+
+## Sorting
+
+### Client-Side Sorting
+
+Enable on specific columns:
+
+```tsx
+fields: {
+  name: { 
+    label: 'Name', 
+    type: 'text', 
+    sortable: true 
+  },
+  start_date: { 
+    label: 'Start Date', 
+    type: 'date', 
+    sortable: true 
+  }
+}
+```
+
+### Server-Side Sorting
+
+Delegate to your backend:
+
+```tsx
+useTable({
+  data,
+  sort: {
+    onSortChange: (key, direction) => {
+      fetchData({ sortKey: key, sortDir: direction });
+    }
+  }
+});
+```
+
+## TypeScript Integration
+
+Define your data interface extending `Resource`:
+
+```tsx
+interface Employee extends Resource {
+  id: number;  // Required identifier
+  name: string;
+  // ... other fields
+}
+```
+
+The `Resource` interface requires an `id` property for row identification.
+
+## Best Practices
+
+### Optimistic Updates
+
+For better UX, update local state before API confirmation:
+
+```tsx
+onSave: async (id, changes) => {
+  // Optimistic update
+  setData(prev => prev.map(row => 
+    row.id === id ? { ...row, ...changes } : row
+  ));
+  
+  try {
+    await api.update(id, changes);
+  } catch (e) {
+    // Rollback on error
+    setData(prev => /* refetch or restore original */);
+    throw e;
+  }
+}
+```
+
+### Loading States
+
+The hook provides `isSubmitting` to disable inputs during operations:
+
+```tsx
+const { tableProps } = useTable({...});
+// tableProps.isSubmitting is true during onSave/onCreate/onDelete
+```
+
+### Error Boundaries
+
+Always throw errors after setting them to keep edit mode active:
+
+```tsx
+onSave: async (id, data) => {
+  try {
+    await api.update(id, data);
+  } catch (error) {
+    setError('field', 'Error message');
+    throw error;  // Required to prevent row from closing
+  }
+}
+```
+
+## Troubleshooting
+
+### Edit Mode Shows Empty Values
+
+Ensure `getInitialValue` returns the correct shape for virtualized-dropdown fields when your data structure differs from field keys.
+
+### Validation Not Triggering
+
+Client validation runs on submit. Ensure your validation functions return `null` for valid values, not `undefined`.

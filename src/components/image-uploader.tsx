@@ -154,7 +154,7 @@ export function ImageUploader({
             return (
               <div key={i} className="relative overflow-hidden rounded-md shadow-md">
                 <div className="relative h-32 w-full overflow-hidden rounded-md shadow-md">
-                  <Image src={url} alt="image-preview" fill className="object-cover" />
+                  <Image src={url} alt="image-preview" fill className="object-cover m-0!" />
                 </div>
                 <button
                   type="button"

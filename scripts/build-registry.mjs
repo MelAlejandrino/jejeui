@@ -46,6 +46,117 @@ const items = [
       },
     ],
   },
+
+  //   DATA GRID
+  {
+    name: 'data-grid',
+    type: 'registry:component',
+    title: 'Data Grid',
+    description:
+      'Inline CRUD table with create, edit, delete, validation, and pagination. No TanStack required.',
+    dependencies: ['lucide-react', 'react-number-format', 'date-fns'],
+    registryDependencies: [
+      'field',
+      'popover',
+      'calendar',
+      'table',
+      'button',
+      'input',
+      'textarea',
+      'spinner',
+      'checkbox',
+      'button-group',
+      'select',
+      'dropdown-menu',
+      `https://diceui.com/r/scroller.json`,
+      `https://jejeui.vercel.app/r/virtualized-dropdown.json`,
+      `https://jejeui.vercel.app/r/date-picker.json`,
+    ],
+    files: [
+      {
+        path: 'components/data-grid/types.ts',
+        target: 'components/data-grid/types.ts',
+        type: 'registry:file',
+        source: 'src/components/data-grid/types.ts',
+      },
+      {
+        path: 'components/data-grid/use-table.ts',
+        target: 'components/data-grid/use-table.ts',
+        type: 'registry:file',
+        source: 'src/components/data-grid/use-table.ts',
+      },
+      {
+        path: 'components/data-grid/data-grid.tsx',
+        target: 'components/data-grid/data-grid.tsx',
+        type: 'registry:file',
+        source: 'src/components/data-grid/data-grid.tsx',
+      },
+      {
+        path: 'components/data-grid/data-table.tsx',
+        target: 'components/data-grid/data-table.tsx',
+        type: 'registry:file',
+        source: 'src/components/data-grid/data-table.tsx',
+      },
+      {
+        path: 'components/data-grid/data-table-actions.tsx',
+        target: 'components/data-grid/data-table-actions.tsx',
+        type: 'registry:file',
+        source: 'src/components/data-grid/data-table-actions.tsx',
+      },
+      {
+        path: 'components/data-grid/data-table-cell-renderer.tsx',
+        target: 'components/data-grid/data-table-cell-renderer.tsx',
+        type: 'registry:file',
+        source: 'src/components/data-grid/data-table-cell-renderer.tsx',
+      },
+      {
+        path: 'components/data-grid/data-table-create-row.tsx',
+        target: 'components/data-grid/data-table-create-row.tsx',
+        type: 'registry:file',
+        source: 'src/components/data-grid/data-table-create-row.tsx',
+      },
+      {
+        path: 'components/data-grid/data-table-edit-row.tsx',
+        target: 'components/data-grid/data-table-edit-row.tsx',
+        type: 'registry:file',
+        source: 'src/components/data-grid/data-table-edit-row.tsx',
+      },
+      {
+        path: 'components/data-grid/data-table-form-actions.tsx',
+        target: 'components/data-grid/data-table-form-actions.tsx',
+        type: 'registry:file',
+        source: 'src/components/data-grid/data-table-form-actions.tsx',
+      },
+      {
+        path: 'components/data-grid/data-table-pagination.tsx',
+        target: 'components/data-grid/data-table-pagination.tsx',
+        type: 'registry:file',
+        source: 'src/components/data-grid/data-table-pagination.tsx',
+      },
+      {
+        path: 'components/data-grid/data-table-progress-spinner.tsx',
+        target: 'components/data-grid/data-table-progress-spinner.tsx',
+        type: 'registry:file',
+        source: 'src/components/data-grid/data-table-progress-spinner.tsx',
+      },
+    ],
+  },
+  {
+    name: 'date-picker',
+    type: 'registry:component',
+    title: 'Date Picker',
+    description: 'A date picker component built on top of shadcn calendar and popover.',
+    dependencies: ['date-fns', 'lucide-react'],
+    registryDependencies: ['popover', 'calendar', 'button', 'field'],
+    files: [
+      {
+        path: 'components/date-picker/date-picker.tsx',
+        target: 'components/date-picker/date-picker.tsx',
+        type: 'registry:file',
+        source: 'src/components/date-picker/date-picker.tsx',
+      },
+    ],
+  },
 ];
 
 fs.mkdirSync('public/r', { recursive: true });

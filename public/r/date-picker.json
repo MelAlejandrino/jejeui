@@ -1,0 +1,25 @@
+{
+  "$schema": "https://ui.shadcn.com/schema/registry-item.json",
+  "name": "date-picker",
+  "type": "registry:component",
+  "title": "Date Picker",
+  "description": "A date picker component built on top of shadcn calendar and popover.",
+  "dependencies": [
+    "date-fns",
+    "lucide-react"
+  ],
+  "registryDependencies": [
+    "popover",
+    "calendar",
+    "button",
+    "field"
+  ],
+  "files": [
+    {
+      "path": "components/date-picker/date-picker.tsx",
+      "target": "components/date-picker/date-picker.tsx",
+      "type": "registry:file",
+      "content": "import * as React from 'react'\r\n\r\nimport { CalendarIcon } from 'lucide-react'\r\n\r\nimport { format } from 'date-fns'\r\n\r\nimport { Button } from '@/components/ui/button'\r\nimport { Calendar } from '@/components/ui/calendar'\r\nimport { Field, FieldDescription } from '@/components/ui/field'\r\nimport { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover'\r\n\r\nexport type DatePickerProps = {\r\n    /** Controlled value */\r\n    value?: Date | null\r\n    /** Uncontrolled initial value */\r\n    defaultValue?: Date | null\r\n    /** Change handler */\r\n    onValueChange?: (date: Date | null) => void\r\n\r\n    /** Weekly mode: show start → end */\r\n    isWeekly?: boolean\r\n\r\n    /** Label & helper text */\r\n    label?: string\r\n    description?: string\r\n\r\n    /** Placeholder text when no date selected */\r\n    placeholder?: string\r\n\r\n    /** Disable entire picker */\r\n    disabled?: boolean\r\n\r\n    /** Min / max selectable dates */\r\n    minDate?: Date\r\n    maxDate?: Date\r\n\r\n    /** Additional className for wrapper */\r\n    className?: string\r\n\r\n    /** Calendar props passthrough */\r\n    calendarProps?: Omit<React.ComponentProps<typeof Calendar>, 'mode' | 'selected' | 'onSelect'>\r\n}\r\n\r\nexport function DatePicker({\r\n    value,\r\n    defaultValue = null,\r\n    onValueChange,\r\n    isWeekly = false,\r\n    description,\r\n    placeholder = 'Pick a date',\r\n    disabled,\r\n    minDate,\r\n    maxDate,\r\n    className,\r\n    calendarProps,\r\n}: DatePickerProps) {\r\n    const isControlled = value !== undefined\r\n\r\n    const [internalDate, setInternalDate] = React.useState<Date | null>(defaultValue)\r\n\r\n    const selectedDate = isControlled ? (value ?? null) : internalDate\r\n\r\n    const setDate = React.useCallback(\r\n        (date: Date | undefined) => {\r\n            const normalized = date ?? null\r\n\r\n            if (!isControlled) setInternalDate(normalized)\r\n            onValueChange?.(normalized)\r\n        },\r\n        [isControlled, onValueChange],\r\n    )\r\n\r\n    const isDateDisabled = React.useCallback(\r\n        (date: Date) => {\r\n            if (minDate && date < minDate) return true\r\n            if (maxDate && date > maxDate) return true\r\n            return false\r\n        },\r\n        [minDate, maxDate],\r\n    )\r\n\r\n    // Compute end date for weekly\r\n    const endDate =\r\n        isWeekly && selectedDate\r\n            ? new Date(selectedDate.getFullYear(), selectedDate.getMonth(), selectedDate.getDate() + 6)\r\n            : null\r\n\r\n    return (\r\n        <Field className={className}>\r\n            <Popover>\r\n                <PopoverTrigger asChild>\r\n                    <Button\r\n                        id='date-picker'\r\n                        type='button'\r\n                        variant='outline'\r\n                        disabled={disabled}\r\n                        className='w-full cursor-pointer justify-start font-normal'\r\n                    >\r\n                        <CalendarIcon />\r\n                        {selectedDate ? (\r\n                            isWeekly && endDate ? (\r\n                                `${format(selectedDate, 'yyyy-MM-dd')} → ${format(endDate, 'yyyy-MM-dd')}`\r\n                            ) : (\r\n                                format(selectedDate, 'yyyy-MM-dd')\r\n                            )\r\n                        ) : (\r\n                            <span className='text-muted-foreground'>{placeholder}</span>\r\n                        )}\r\n                    </Button>\r\n                </PopoverTrigger>\r\n\r\n                <PopoverContent className='w-auto p-0' align='start'>\r\n                    <Calendar\r\n                        mode='single'\r\n                        selected={selectedDate ?? undefined}\r\n                        onSelect={setDate}\r\n                        defaultMonth={selectedDate ?? undefined}\r\n                        disabled={isDateDisabled}\r\n                        {...calendarProps}\r\n                    />\r\n                </PopoverContent>\r\n            </Popover>\r\n\r\n            {description && <FieldDescription>{description}</FieldDescription>}\r\n        </Field>\r\n    )\r\n}\r\n"
+    }
+  ]
+}
