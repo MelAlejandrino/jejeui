@@ -1,4 +1,10 @@
 {
   "title": "Components",
-  "pages": ["autocomplete", "data-grid", "image-uploader", "virtualized-dropdown"]
+  "pages": [
+    "autocomplete",
+    "data-grid",
+    "image-uploader",
+    "virtualized-dropdown",
+    "limitless-dropdown"
+  ]
 }

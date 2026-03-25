@@ -1,0 +1,188 @@
+---
+title: LimitlessDropdown
+description: A high-performance virtualized dropdown component with infinite scroll, search, and single/multi-select support. Handles thousands of items without breaking a sweat.
+---
+
+import LimitlessDropdownDemo from "@/features/limitless-dropdown/page.tsx";
+
+## Live Demo
+<LimitlessDropdownDemo />
+
+## Usage with TanStack Query (Recommended)
+
+```tsx
+import { useInfiniteQuery } from '@tanstack/react-query';
+import LimitlessDropdown from '@/components/ui/limitless-dropdown';
+
+type User = {
+  id: number;
+  name: string;
+  email: string;
+};
+
+const fetchUsers = async ({ pageParam = 0 }: { pageParam?: number }) => {
+  const res = await fetch(`/api/users?cursor=${pageParam}&limit=50`);
+  if (!res.ok) throw new Error('Network error');
+  return res.json() as Promise<{ data: User[]; nextCursor: number | null }>;
+};
+
+function UserSelect() {
+  const [search, setSearch] = useState('');
+  const [selected, setSelected] = useState<User | null>(null);
+
+  const {
+    data,
+    fetchNextPage,
+    hasNextPage,
+    isFetchingNextPage,
+    isLoading,
+  } = useInfiniteQuery({
+    queryKey: ['users', search],
+    queryFn: fetchUsers,
+    initialPageParam: 0,
+    getNextPageParam: (lastPage) => lastPage.nextCursor,
+  });
+
+  const items = data?.pages.flatMap(page => page.data) ?? [];
+
+  return (
+    <LimitlessDropdown<User>
+      items={items}
+      isLoading={isLoading}
+      isFetchingNextPage={isFetchingNextPage}
+      hasNextPage={hasNextPage}
+      onLoadMore={fetchNextPage}
+      search={search}
+      onSearchChange={setSearch}
+      label="Select user..."
+      single={true}
+      value={selected}
+      onChange={setSelected}
+      nameSet={(user) => `${user.name} (${user.email})`}
+      idSet="id"
+    />
+  );
+}
+```
+
+## Usage with Normal Fetch
+
+```tsx
+import { useState, useCallback, useRef } from 'react';
+import LimitlessDropdown from '@/components/ui/limitless-dropdown';
+
+type Product = {
+  id: string;
+  name: string;
+  price: number;
+};
+
+function ProductSelect() {
+  const [items, setItems] = useState<Product[]>([]);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isFetchingNextPage, setIsFetchingNextPage] = useState(false);
+  const [hasNextPage, setHasNextPage] = useState(true);
+  const [search, setSearch] = useState('');
+  const [selected, setSelected] = useState<Product[]>([]);
+  
+  const pageRef = useRef(0);
+  const abortRef = useRef<AbortController | null>(null);
+
+  const fetchProducts = useCallback(async (page: number, query: string) => {
+    const abort = new AbortController();
+    abortRef.current = abort;
+
+    const res = await fetch(
+      `/api/products?page=${page}&q=${encodeURIComponent(query)}&limit=50`,
+      { signal: abort.signal }
+    );
+    
+    if (!res.ok) throw new Error('Failed to fetch');
+    return res.json() as Promise<{ products: Product[]; hasMore: boolean }>;
+  }, []);
+
+  const loadInitial = useCallback(async (query: string) => {
+    setIsLoading(true);
+    pageRef.current = 0;
+    
+    try {
+      const data = await fetchProducts(0, query);
+      setItems(data.products);
+      setHasNextPage(data.hasMore);
+      pageRef.current = 1;
+    } catch (e) {
+      if (e instanceof Error && e.name !== 'AbortError') {
+        console.error(e);
+      }
+    } finally {
+      setIsLoading(false);
+    }
+  }, [fetchProducts]);
+
+  const loadMore = useCallback(async () => {
+    if (isFetchingNextPage || !hasNextPage) return;
+    
+    setIsFetchingNextPage(true);
+    try {
+      const data = await fetchProducts(pageRef.current, search);
+      setItems(prev => [...prev, ...data.products]);
+      setHasNextPage(data.hasMore);
+      pageRef.current += 1;
+    } finally {
+      setIsFetchingNextPage(false);
+    }
+  }, [fetchProducts, hasNextPage, isFetchingNextPage, search]);
+
+  const handleSearchChange = useCallback((value: string) => {
+    setSearch(value);
+    abortRef.current?.abort();
+    loadInitial(value);
+  }, [loadInitial]);
+
+  return (
+    <LimitlessDropdown<Product>
+      items={items}
+      isLoading={isLoading}
+      isFetchingNextPage={isFetchingNextPage}
+      hasNextPage={hasNextPage}
+      onLoadMore={loadMore}
+      search={search}
+      onSearchChange={handleSearchChange}
+      label="Select products..."
+      single={false}
+      value={selected}
+      onChange={setSelected}
+      keepOpenOnSelect={true}
+      nameSet="name"
+      idSet="id"
+    />
+  );
+}
+```
+
+## API Reference
+
+| Prop | Type | Description |
+|------|------|-------------|
+| `items` | `T[]` | Array of items to display |
+| `isLoading` | `boolean` | Initial loading state |
+| `isFetchingNextPage` | `boolean` | Loading more items on scroll |
+| `hasNextPage` | `boolean` | Whether more items are available |
+| `onLoadMore` | `() => void` | Callback when scroll reaches bottom |
+| `search` | `string` | Current search value |
+| `onSearchChange` | `(search: string) => void` | Search input handler |
+| `single` | `boolean` | Single or multi-select mode |
+| `value` | `T \| T[] \| null` | Selected value(s) |
+| `onChange` | `(val: T \| T[] \| null) => void` | Selection change handler |
+| `nameSet` | `string \| ((item: T) => string)` | Display name accessor |
+| `idSet` | `string \| ((item: T) => string \| number)` | Unique ID accessor |
+| `keepOpenOnSelect` | `boolean` | Keep dropdown open after selection |
+| `customEmptyMessage` | `string` | Custom message when no results |
+
+## Features
+
+- **Virtualized Rendering** — Uses `@tanstack/react-virtual` to smoothly handle 10,000+ items
+- **Infinite Scroll** — Automatically loads more data as you scroll
+- **Search Filtering** — Real-time search with debounced input
+- **Single & Multi Select** — Flexible selection modes
+- **Type Safe** — Full TypeScript support with generic types
