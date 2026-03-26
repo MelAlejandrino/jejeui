@@ -78,7 +78,15 @@ export const DataGridDemo = () => {
     },
     fields: {
       name: { label: 'Name', type: 'text', placeholder: 'Enter name...' },
-      age: { label: 'Age', type: 'number', placeholder: 'Enter age...', size: 80 },
+      age: {
+        label: 'Age',
+        type: 'number',
+        placeholder: 'Enter age...',
+        size: 80,
+        render: (value) => (
+          <span className="break-words whitespace-normal">{value ? Number(value) : ''}</span>
+        ),
+      },
       notes: {
         label: 'Notes',
         type: 'textarea',
@@ -94,7 +102,7 @@ export const DataGridDemo = () => {
         type: 'number',
         placeholder: 'Enter salary...',
         getInitialValue: (row) => (row as Employee).salary,
-        render: (value) => <p>₱{Number(value).toLocaleString()}</p>,
+        render: (value) => <p>{value ? `₱${Number(value).toLocaleString()}` : ''} </p>,
         thousandSeparator: true,
         decimalScale: 2,
         size: 150,
