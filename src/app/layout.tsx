@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     title: 'jeje/ui',
     description:
       'Practical, copy-paste React components built on top of shadcn/ui. Designed for dashboards, admin panels, and internal tools — but flexible enough for any project.',
-    images: '/favicon.ico',
+    images: '/icon.png',
   },
 };
 
